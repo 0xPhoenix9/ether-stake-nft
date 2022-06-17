@@ -1,5 +1,7 @@
 // Styled Components
+import React from 'react';
 import styled from "styled-components";
+import Web3 from 'web3';
 
 // Next
 import Link from "next/link";
@@ -13,8 +15,10 @@ import { Typography } from '@mui/material';
 import FlowCardComp from './StakeItem/FlowCardComp';
 import CardComp from "./StakeItem/CardComp";
 import WalletAddress from "./StakeItem/WalletAddress";
+import { MarketContext } from "../../context/MarketContext";
+import JackedABI from '../../ABI/JackedApeClub.json';
 
-const Stake = () => {
+const Stake = ({ tokenIds, currentAccount }) => {
     const temp = [
         {
             title: 'Jacked Ape#0001',
@@ -106,42 +110,8 @@ const Stake = () => {
         }
     ]
 
-    const footerItem = [
-        {
-            imgUrl: '/images/Stake/Layer 2.png',
-            state: 'stake',
-        },
+    const { stakedItems } = React.useContext(MarketContext);
 
-        {
-            imgUrl: '/images/Stake/Layer 3.png',
-            state: 'staked',
-        },
-        {
-            imgUrl: '/images/Stake/Layer 4.png',
-            state: 'stake',
-        },
-        {
-            imgUrl: '/images/Stake/Layer 5.png',
-            state: 'staked',
-        },
-        {
-            imgUrl: '/images/Stake/Layer 6.png',
-            state: 'stake',
-        },
-        {
-            imgUrl: '/images/Stake/Layer 7.png',
-            state: 'staked',
-        },
-        {
-            imgUrl: '/images/Stake/Layer 6.png',
-            state: 'stake',
-        },
-        {
-            imgUrl: '/images/Stake/Layer 7.png',
-            state: 'staked',
-        }
-
-    ]
     return (
         <Wrapper>
             <div className="stake-container">
@@ -194,11 +164,12 @@ const Stake = () => {
                     <div className="box_wrapper">
                         <BoxContainer className="box-container">
                             {
-                                temp.map((item, index) => {
+                                stakedItems.length > 0 ? stakedItems.map((item, index) => {
                                     return (
                                         <CardComp content={item} key={index}></CardComp>
                                     )
                                 })
+                                    : <div className='no-stakedItem'>Nothing is staked</div>
                             }
                         </BoxContainer>
                     </div>
@@ -224,19 +195,27 @@ const Stake = () => {
                     </div>
                     <StateBoxContainer>
                         <div className="footer-cards">
-                            {
+                            {/* {
                                 footerItem.map((item, index) => {
                                     return (
                                         <FlowCardComp content={item} key={index}></FlowCardComp>
                                     )
                                 })
+                            } */}
+                            {
+                                tokenIds.length > 0 ? tokenIds.map((tokenId, index) => {
+                                    return (
+                                        <FlowCardComp tokenId={tokenId} account={currentAccount} key={index}></FlowCardComp>
+                                    )
+                                })
+                                    : <div className='no-items'>No items</div>
                             }
                         </div>
                     </StateBoxContainer>
                 </Box>
 
             </div>
-            <div style={{height: "100px"}}></div>
+            <div style={{ height: "100px" }}></div>
         </Wrapper >
     );
 };
@@ -377,6 +356,20 @@ const Wrapper = styled.div`
     .footer-cards{
         display:flex;
         justify-content:space-between;
+    }
+
+    .no-stakedItem{
+        display: flex;
+        margin: auto;
+        font-size: 50px;
+        font-family: DeadStockDemo;
+    }
+
+    .no-items{
+        display: flex;
+        margin: auto;
+        font-size: 50px;
+        font-family: DeadStockDemo;
     }
 
     @media (max-width: 1440px) {
