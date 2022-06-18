@@ -34,13 +34,14 @@ const index = () => {
     if (currentAccount) {
       const temp = [];
       const txList = await getTxList(currentAccount);
-
+      console.log("txList is ", txList);
       if (txList.length > 0) {
         txList.forEach((tx, index) => {
           if (!temp.includes(tx.tokenID)) {
             temp.push(tx.tokenID);
           }
           if (index === txList.length - 1) {
+            console.log('temp is ', temp);
             setTokenIds(temp);
           }
         })

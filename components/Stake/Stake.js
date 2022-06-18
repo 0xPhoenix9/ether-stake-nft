@@ -1,14 +1,7 @@
 // Styled Components
 import React from 'react';
 import styled from "styled-components";
-import Web3 from 'web3';
 
-// Next
-import Link from "next/link";
-
-// Images
-
-//
 import { Box, } from "@mui/system";
 import { Typography } from '@mui/material';
 
@@ -16,7 +9,7 @@ import FlowCardComp from './StakeItem/FlowCardComp';
 import CardComp from "./StakeItem/CardComp";
 import WalletAddress from "./StakeItem/WalletAddress";
 import { MarketContext } from "../../context/MarketContext";
-import JackedABI from '../../ABI/JackedApeClub.json';
+
 
 const Stake = ({ tokenIds, currentAccount }) => {
     const temp = [

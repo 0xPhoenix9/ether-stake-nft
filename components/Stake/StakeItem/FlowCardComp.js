@@ -7,6 +7,17 @@ import JackedABI from '../../../ABI/JackedApeClub.json';
 import StakeABI from '../../../ABI/Stakeable.json';
 import { useState } from 'react';
 import { MarketContext } from '../../../context/MarketContext';
+import { NotificationContainer, NotificationManager } from 'react-notifications';
+import 'react-notifications/lib/notifications.css';
+
+
+///////////////////////////////
+import Snackbar from '@mui/material/Snackbar';
+import MuiAlert from '@mui/material/Alert';
+
+const Alert = React.forwardRef(function Alert(props, ref) {
+    return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
+});
 
 
 export default function FlowCardComp({ tokenId, account }) {
@@ -17,6 +28,26 @@ export default function FlowCardComp({ tokenId, account }) {
     const [loading, setLoading] = useState(false);
 
     const { stakedItems, setStakedItems } = React.useContext(MarketContext);
+
+    const createNotification = (type) => {
+        switch (type) {
+            case 'info':
+                NotificationManager.info('Info message');
+                break;
+            case 'success':
+                NotificationManager.success('Successfully staked.', 'Staked');
+                break;
+            case 'warning':
+                NotificationManager.warning('Warning message', 'Close after 3000ms', 3000);
+                break;
+            case 'error':
+                NotificationManager.error('Rejected to stake', 'Rejected', 5000, () => {
+                    alert('callback');
+                });
+                break;
+        }
+    }
+
 
     React.useEffect(async () => {
         if (window.ethereum) {
@@ -37,39 +68,52 @@ export default function FlowCardComp({ tokenId, account }) {
         }
     }, []);
 
+    React.useEffect(() => {
+        if (!stakedItems.includes(tokenId)) {
+            setStakeStatus(false);
+        } else {
+            setStakeStatus(true);
+        }
+    }, [stakedItems])
+
 
     const stakeNFT = async () => {
         if (window.ethereum) {
+            console.log("selected Id is ", tokenId);
             setLoading(true);
             web3 = new Web3(window.ethereum);
             const contractInstance = new web3.eth.Contract(JackedABI.abi, JackedABI.address);
             const stakeContractInstance = new web3.eth.Contract(StakeABI.abi, StakeABI.address);
             const to = "0xcAe5eF901c3eDA09578E32d967f549072827b249";
-            await contractInstance.methods.approve(to, tokenId).send({
-                from: account
-            });
-            await stakeContractInstance.methods.stake(tokenId).send({
-                from: account
-            });
-            setLoading(false);
-
-            // const temp = stakedItems;
-            // temp.push(tokenId);
-            // setStakedItems(temp);
-            window.location.reload();
+            try {
+                await contractInstance.methods.approve(to, tokenId).send({
+                    from: account
+                });
+                const stakeResult = await stakeContractInstance.methods.stake(tokenId).send({
+                    from: account
+                });
+                if (stakeResult) {
+                    console.log("stakeResult is ", stakeResult);
+                    let temp = stakedItems;
+                    console.log("temp is ", temp, typeof temp);
+                    temp = [...temp, tokenId];
+                    setStakedItems(temp);
+                }
+                createNotification("success");
+                setLoading(false);
+            } catch (err) {
+                if (err.code === 4001) {
+                    createNotification("error");
+                    setLoading(false);
+                }
+            }
         }
     }
 
+
     return (
-        // <Wrapper content={content}>
-        //     {/* <img className='card-item' src={content.imgUrl} /> */}
-        //     <div className='card-item'>
-        //         <div className={content.state}>
-        //             {content.state}
-        //         </div>
-        //     </div>
-        // </Wrapper>
         <Wrapper>
+            <NotificationContainer />
             <CardItem content={imageUrl} onMouseOver={() => setDisplayButton(true)} onMouseLeave={() => setDisplayButton(false)}>
                 {
                     loading ? <CircularProgress /> :

@@ -6,6 +6,9 @@ import axios from 'axios';
 import JackedABI from '../../../ABI/JackedApeClub.json';
 import StakedABI from '../../../ABI/Stakeable.json';
 import { MarketContext } from '../../../context/MarketContext';
+import CircularProgress from '@mui/material/CircularProgress';
+import { NotificationContainer, NotificationManager } from 'react-notifications';
+import 'react-notifications/lib/notifications.css';
 
 
 export default function CardComp({ content }) {
@@ -15,6 +18,25 @@ export default function CardComp({ content }) {
     const [imageUrl, setImageUrl] = useState();
     const [name, setName] = useState();
     const [loading, setLoading] = useState(false);
+
+    const createNotification = (type) => {
+        switch (type) {
+            case 'info':
+                NotificationManager.info('Info message');
+                break;
+            case 'success':
+                NotificationManager.success('Successfully unstaked.', 'Unstaked');
+                break;
+            case 'warning':
+                NotificationManager.warning('Warning message', 'Close after 3000ms', 3000);
+                break;
+            case 'error':
+                NotificationManager.error('Rejected to unstake', 'Rejected', 5000, () => {
+                    alert('callback');
+                });
+                break;
+        }
+    }
 
     React.useEffect(async () => {
         if (window.ethereum) {
@@ -29,6 +51,7 @@ export default function CardComp({ content }) {
             setImageUrl(imgUrl);
         }
     }, []);
+
     const temp = [
         {
             title: 'Jacked Ape#0001',
@@ -46,17 +69,24 @@ export default function CardComp({ content }) {
         web3 = new Web3(window.ethereum);
         const currentAccount = await web3.eth.getAccounts();
         const stakedInstance = new web3.eth.Contract(StakedABI.abi, StakedABI.address);
-        await stakedInstance.methods.unstake(content).send({
-            from: currentAccount[0]
-        });
+        try {
+            await stakedInstance.methods.unstake(content).send({
+                from: currentAccount[0]
+            });
+        } catch (err) {
+            if (err.code === 4001) {
+                setLoading(false);
+                createNotification("error");
+            }
+        }
         const newStakedItems = stakedItems.filter(item => item !== content);
         setStakedItems(newStakedItems);
         setLoading(false);
-
-        window.location.reload();
+        createNotification("success");
     }
     return (
         <Container>
+            <NotificationContainer />
             {/* <Img src={"/images/Stake/Layer 4.png"}></Img> */}
             <Img src={imageUrl}></Img>
             <ContentBox>
@@ -85,7 +115,7 @@ export default function CardComp({ content }) {
                 </RankBar>
                 <FlexRow>
                     {
-                        loading ? "loading..." : <Img2 src='/images/Logos/Fill-White.png'></Img2>
+                        loading ? <div className='spinner'><CircularProgress /></div> : <Img2 src='/images/Logos/Fill-White.png'></Img2>
                     }
                     <DecorText onClick={() => unstakeNFT()}>unstake</DecorText>
                 </FlexRow>
