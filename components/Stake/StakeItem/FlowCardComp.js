@@ -10,16 +10,6 @@ import { MarketContext } from '../../../context/MarketContext';
 import { NotificationContainer, NotificationManager } from 'react-notifications';
 import 'react-notifications/lib/notifications.css';
 
-
-///////////////////////////////
-import Snackbar from '@mui/material/Snackbar';
-import MuiAlert from '@mui/material/Alert';
-
-const Alert = React.forwardRef(function Alert(props, ref) {
-    return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
-});
-
-
 export default function FlowCardComp({ tokenId, account }) {
     let web3;
     const [imageUrl, setImageUrl] = useState();

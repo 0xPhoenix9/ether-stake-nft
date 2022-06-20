@@ -3,7 +3,6 @@ import React from 'react';
 import Web3 from 'web3';
 import { useState } from 'react';
 import styled from 'styled-components';
-import reactReveal from 'react-reveal';
 
 export default function WalletAddress(content = {}) {
     const temp = {

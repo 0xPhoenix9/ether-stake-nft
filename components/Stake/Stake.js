@@ -12,96 +12,6 @@ import { MarketContext } from "../../context/MarketContext";
 
 
 const Stake = ({ tokenIds, currentAccount }) => {
-    const temp = [
-        {
-            title: 'Jacked Ape#0001',
-            rank: 'Gym Lad',
-            pumpCollected: '27 Pump',
-            pumpRate: '5 Pump/24hrs',
-            currentStreak: '7D 3H',
-            nextStreak: '7'
-        },
-        {
-            title: 'Jacked Ape#0001',
-            rank: 'Gym Lad',
-            pumpCollected: '27 Pump',
-            pumpRate: '5 Pump/24hrs',
-            currentStreak: '7D 3H',
-            nextStreak: '7'
-        },
-        {
-            title: 'Jacked Ape#0001',
-            rank: 'Gym Lad',
-            pumpCollected: '27 Pump',
-            pumpRate: '5 Pump/24hrs',
-            currentStreak: '7D 3H',
-            nextStreak: '7'
-        },
-        {
-            title: 'Jacked Ape#0001',
-            rank: 'Gym Lad',
-            pumpCollected: '27 Pump',
-            pumpRate: '5 Pump/24hrs',
-            currentStreak: '7D 3H',
-            nextStreak: '7'
-        },
-        {
-            title: 'Jacked Ape#0001',
-            rank: 'Gym Lad',
-            pumpCollected: '27 Pump',
-            pumpRate: '5 Pump/24hrs',
-            currentStreak: '7D 3H',
-            nextStreak: '7'
-        },
-        {
-            title: 'Jacked Ape#0001',
-            rank: 'Gym Lad',
-            pumpCollected: '27 Pump',
-            pumpRate: '5 Pump/24hrs',
-            currentStreak: '7D 3H',
-            nextStreak: '7'
-        },
-        {
-            title: 'Jacked Ape#0001',
-            rank: 'Gym Lad',
-            pumpCollected: '27 Pump',
-            pumpRate: '5 Pump/24hrs',
-            currentStreak: '7D 3H',
-            nextStreak: '7'
-        },
-        {
-            title: 'Jacked Ape#0001',
-            rank: 'Gym Lad',
-            pumpCollected: '27 Pump',
-            pumpRate: '5 Pump/24hrs',
-            currentStreak: '7D 3H',
-            nextStreak: '7'
-        },
-        {
-            title: 'Jacked Ape#0001',
-            rank: 'Gym Lad',
-            pumpCollected: '27 Pump',
-            pumpRate: '5 Pump/24hrs',
-            currentStreak: '7D 3H',
-            nextStreak: '7'
-        },
-        {
-            title: 'Jacked Ape#0001',
-            rank: 'Gym Lad',
-            pumpCollected: '27 Pump',
-            pumpRate: '5 Pump/24hrs',
-            currentStreak: '7D 3H',
-            nextStreak: '7'
-        },
-        {
-            title: 'Jacked Ape#0001',
-            rank: 'Gym Lad',
-            pumpCollected: '27 Pump',
-            pumpRate: '5 Pump/24hrs',
-            currentStreak: '7D 3H',
-            nextStreak: '7'
-        }
-    ]
 
     const { stakedItems } = React.useContext(MarketContext);
 
@@ -109,7 +19,7 @@ const Stake = ({ tokenIds, currentAccount }) => {
         <Wrapper>
             <div className="stake-container">
                 <div style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
-                    <Img src='/images/Logos/Fill-White.png' alt=""></Img>
+                    <Img src='/images/Logos/JACKED_Grey_Crop.svg' alt=""></Img>
                 </div>
                 <div className="head-title">
                     STAKING ROUTINE
@@ -188,13 +98,6 @@ const Stake = ({ tokenIds, currentAccount }) => {
                     </div>
                     <StateBoxContainer>
                         <div className="footer-cards">
-                            {/* {
-                                footerItem.map((item, index) => {
-                                    return (
-                                        <FlowCardComp content={item} key={index}></FlowCardComp>
-                                    )
-                                })
-                            } */}
                             {
                                 tokenIds.length > 0 ? tokenIds.map((tokenId, index) => {
                                     return (

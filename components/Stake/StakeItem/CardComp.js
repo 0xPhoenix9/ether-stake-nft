@@ -10,7 +10,6 @@ import CircularProgress from '@mui/material/CircularProgress';
 import { NotificationContainer, NotificationManager } from 'react-notifications';
 import 'react-notifications/lib/notifications.css';
 
-
 export default function CardComp({ content }) {
     let web3;
 
@@ -87,7 +86,6 @@ export default function CardComp({ content }) {
     return (
         <Container>
             <NotificationContainer />
-            {/* <Img src={"/images/Stake/Layer 4.png"}></Img> */}
             <Img src={imageUrl}></Img>
             <ContentBox>
                 <Content fontSize={17}>
