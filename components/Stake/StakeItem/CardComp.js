@@ -182,7 +182,6 @@ export default function CardComp({ content, account }) {
     return (
         <Container>
             <NotificationContainer />
-            {/* <Img src={"/images/Stake/Layer 4.png"}></Img> */}
             <Img src={imageUrl}></Img>
             <ContentBox>
                 <Content fontSize={10}>

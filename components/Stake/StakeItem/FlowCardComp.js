@@ -10,7 +10,6 @@ import { MarketContext } from '../../../context/MarketContext';
 import { NotificationContainer, NotificationManager } from 'react-notifications';
 import 'react-notifications/lib/notifications.css';
 
-
 export default function FlowCardComp({ tokenId, account }) {
     const [imageUrl, setImageUrl] = useState();
     const [stakeStatus, setStakeStatus] = useState(false);
