@@ -11,17 +11,7 @@ import { NotificationContainer, NotificationManager } from 'react-notifications'
 import 'react-notifications/lib/notifications.css';
 
 
-///////////////////////////////
-import Snackbar from '@mui/material/Snackbar';
-import MuiAlert from '@mui/material/Alert';
-
-const Alert = React.forwardRef(function Alert(props, ref) {
-    return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
-});
-
-
 export default function FlowCardComp({ tokenId, account }) {
-    let web3;
     const [imageUrl, setImageUrl] = useState();
     const [stakeStatus, setStakeStatus] = useState(false);
     const [displayButton, setDisplayButton] = useState(false);
@@ -51,12 +41,11 @@ export default function FlowCardComp({ tokenId, account }) {
 
     React.useEffect(async () => {
         if (window.ethereum) {
-            web3 = new Web3(window.ethereum);
+            const web3 = new Web3(window.ethereum);
             const stakeContractInstance = new web3.eth.Contract(StakeABI.abi, StakeABI.address);
             const contractInstance = new web3.eth.Contract(JackedABI.abi, JackedABI.address);
             const tokenInfo = await contractInstance.methods.tokenURI(tokenId).call();
             const stakeStatus = await stakeContractInstance.methods.getStakedTokenIds(account).call();
-            setStakedItems(stakeStatus);
             if (stakeStatus.includes(tokenId)) {
                 setStakeStatus(true);
             }
@@ -81,7 +70,7 @@ export default function FlowCardComp({ tokenId, account }) {
         if (window.ethereum) {
             console.log("selected Id is ", tokenId);
             setLoading(true);
-            web3 = new Web3(window.ethereum);
+            const web3 = new Web3(window.ethereum);
             const contractInstance = new web3.eth.Contract(JackedABI.abi, JackedABI.address);
             const stakeContractInstance = new web3.eth.Contract(StakeABI.abi, StakeABI.address);
             const to = "0xcAe5eF901c3eDA09578E32d967f549072827b249";

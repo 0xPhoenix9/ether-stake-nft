@@ -11,13 +11,16 @@ import { NotificationContainer, NotificationManager } from 'react-notifications'
 import 'react-notifications/lib/notifications.css';
 
 
-export default function CardComp({ content }) {
+export default function CardComp({ content, account }) {
     let web3;
 
-    const { stakedItems, setStakedItems } = React.useContext(MarketContext);
+    const { stakedItems, setStakedItems, txHistory, totalSum, setTotalSum } = React.useContext(MarketContext);
     const [imageUrl, setImageUrl] = useState();
     const [name, setName] = useState();
     const [loading, setLoading] = useState(false);
+    const [sum, setSum] = useState(0);
+    const [currentTime, setCurrentTime] = useState('');
+    const [startTime, setStartTime] = useState('');
 
     const createNotification = (type) => {
         switch (type) {
@@ -52,6 +55,81 @@ export default function CardComp({ content }) {
         }
     }, []);
 
+    React.useEffect(async () => {
+        if (txHistory.length > 0 && account) {
+            let amount = 0;
+            const web3 = new Web3(window.ethereum)
+            const currentBlock = await web3.eth.getBlockNumber();
+            let currentTimestamp;
+            let endTime;
+
+            const currentTime = await web3.eth.getBlock(currentBlock);
+            currentTimestamp = currentTime.timestamp;
+            setCurrentTime(currentTimestamp);
+            const keccakStakeFunction = web3.eth.abi.encodeFunctionCall({
+                name: 'stake',
+                type: 'function',
+                inputs: [{
+                    type: 'uint256',
+                    name: 'tokenId'
+                }],
+            }, ['13']);
+            const keccakUnstakeFunction = web3.eth.abi.encodeFunctionCall({
+                name: 'unstake',
+                type: 'function',
+                inputs: [{
+                    type: 'uint256',
+                    name: 'tokenId'
+                }],
+            }, ['13']);
+            const stakePrefix = keccakStakeFunction.slice(0, 10);
+            const unstakePrefix = keccakUnstakeFunction.slice(0, 10);
+            const condition = (idex) => {
+                const idx = idex - 1;
+                if (txHistory[idx]?.input) {
+                    const tokenIdFromTx = '0x' + txHistory[idx]?.input.slice(txHistory[idx]?.input.length - 10);
+                    console.log("tokenId from tx: ", tokenIdFromTx, txHistory[idx]);
+                    console.log('current tokenId is ', content, txHistory[idx]?.input.includes(stakePrefix));
+                    const returnValue = txHistory[idx]?.input.includes(stakePrefix) && String(Number(tokenIdFromTx)) === String(content);
+                    console.log('return value is ', returnValue);
+                    return returnValue;
+                } else {
+                    return true;
+                }
+
+            }
+            const stakedContractInst = new web3.eth.Contract(StakedABI.abi, StakedABI.address);
+            const stakedAmount = await stakedContractInst.methods.getStakedTokenIds(account).call();
+            amount = Number(stakedAmount.length);
+            let index = txHistory.length;
+            const currentRate = amount > 4 ? 10 : ((amount - 1) * 0.25 + 1) * 5;
+            let sum = (Number(currentTimestamp) - Number(txHistory[index - 1]?.timeStamp)) / 3600 / 24 * currentRate;
+            endTime = Number(txHistory[index - 1]?.timeStamp);
+            while (!condition(index)) {
+                console.log(index);
+                const current = index - 1;
+                const prev = index - 2;
+                if (txHistory[current]?.timeStamp || txHistory[prev]?.timeStamp) {
+                    console.log("-----------------------", txHistory[current]?.timeStamp);
+                    if (txHistory[current]?.input.includes(stakePrefix)) {
+                        amount = amount - 1;
+                    }
+                    if (txHistory[current]?.input.includes(unstakePrefix)) {
+                        amount = amount + 1;
+                    }
+                    const duration = (Number(txHistory[current]?.timeStamp) - Number(txHistory[prev]?.timeStamp)) / 3600 / 24;
+                    const rate = amount > 4 ? 10 : ((amount - 1) * 0.25 + 1) * 5;
+                    sum = sum + duration * rate;
+                    endTime = txHistory[prev]?.timeStamp;
+                    console.log("end time stamp is ", endTime);
+                    index = index - 1;
+                }
+            }
+            setSum(sum);
+            setStartTime(endTime);
+        }
+    }, [txHistory, account])
+
     const temp = [
         {
             title: 'Jacked Ape#0001',
@@ -73,16 +151,33 @@ export default function CardComp({ content }) {
             await stakedInstance.methods.unstake(content).send({
                 from: currentAccount[0]
             });
+            const newStakedItems = stakedItems.filter(item => item !== content);
+            console.log("the length is", stakedItems.length);
+            setStakedItems(newStakedItems);
+            setLoading(false);
+            createNotification("success");
         } catch (err) {
             if (err.code === 4001) {
                 setLoading(false);
                 createNotification("error");
             }
         }
-        const newStakedItems = stakedItems.filter(item => item !== content);
-        setStakedItems(newStakedItems);
-        setLoading(false);
-        createNotification("success");
+    }
+
+    React.useEffect(() => {
+        const total = totalSum + sum;
+        setTotalSum(total);
+    }, [sum])
+
+
+    const timer = (current, start) => {
+        const duration = Number(current) - Number(start);
+        console.log("duration is ", start);
+        const hours = Math.floor(duration / 3600);
+        const day = Math.floor(hours / 24);
+        const hour = hours % 24;
+        const min = Math.floor((duration - day * 3600 * 24 - hour * 3600) / 60);
+        return day + ' D ' + hour + ' H ' + min + ' M';
     }
     return (
         <Container>
@@ -90,25 +185,20 @@ export default function CardComp({ content }) {
             {/* <Img src={"/images/Stake/Layer 4.png"}></Img> */}
             <Img src={imageUrl}></Img>
             <ContentBox>
-                <Content fontSize={17}>
-                    {temp.title}
+                <Content fontSize={10}>
+                    {'Title: ' + name}
                 </Content>
                 <Content fontSize={10}>
-                    {'Rank: ' + name}
+                    {'Pump Collected: ' + sum}
                 </Content>
                 <Content fontSize={10}>
-                    {'Pump Collected: ' + temp.pumpCollected}
-                </Content>
-                <Content fontSize={10}>
-                    {'Pump Rate: ' + temp.pumpRate}
+                    {'Pump Rate: ' + String(sum / ((currentTime - startTime) / 3600 / 24))}
                 </Content>
                 <div style={{ width: '211px', display: 'flex', justifyContent: 'space-between' }}>
                     <Content fontSize={8}>
-                        {'Current Streak: ' + temp.currentStreak}
+                        {'Current Streak: ' + timer(currentTime, startTime)}
                     </Content>
-                    <Content fontSize={8}>
-                        {'Next Streak: ' + temp.nextStreak}
-                    </Content>
+
                 </div>
                 <RankBar>
                     <FilledBar value={30}></FilledBar>

@@ -8,102 +8,38 @@ import { Typography } from '@mui/material';
 import FlowCardComp from './StakeItem/FlowCardComp';
 import CardComp from "./StakeItem/CardComp";
 import WalletAddress from "./StakeItem/WalletAddress";
+import StakeABI from '../../ABI/Stakeable.json';
 import { MarketContext } from "../../context/MarketContext";
+import Web3 from 'web3';
 
 
 const Stake = ({ tokenIds, currentAccount }) => {
-    const temp = [
-        {
-            title: 'Jacked Ape#0001',
-            rank: 'Gym Lad',
-            pumpCollected: '27 Pump',
-            pumpRate: '5 Pump/24hrs',
-            currentStreak: '7D 3H',
-            nextStreak: '7'
-        },
-        {
-            title: 'Jacked Ape#0001',
-            rank: 'Gym Lad',
-            pumpCollected: '27 Pump',
-            pumpRate: '5 Pump/24hrs',
-            currentStreak: '7D 3H',
-            nextStreak: '7'
-        },
-        {
-            title: 'Jacked Ape#0001',
-            rank: 'Gym Lad',
-            pumpCollected: '27 Pump',
-            pumpRate: '5 Pump/24hrs',
-            currentStreak: '7D 3H',
-            nextStreak: '7'
-        },
-        {
-            title: 'Jacked Ape#0001',
-            rank: 'Gym Lad',
-            pumpCollected: '27 Pump',
-            pumpRate: '5 Pump/24hrs',
-            currentStreak: '7D 3H',
-            nextStreak: '7'
-        },
-        {
-            title: 'Jacked Ape#0001',
-            rank: 'Gym Lad',
-            pumpCollected: '27 Pump',
-            pumpRate: '5 Pump/24hrs',
-            currentStreak: '7D 3H',
-            nextStreak: '7'
-        },
-        {
-            title: 'Jacked Ape#0001',
-            rank: 'Gym Lad',
-            pumpCollected: '27 Pump',
-            pumpRate: '5 Pump/24hrs',
-            currentStreak: '7D 3H',
-            nextStreak: '7'
-        },
-        {
-            title: 'Jacked Ape#0001',
-            rank: 'Gym Lad',
-            pumpCollected: '27 Pump',
-            pumpRate: '5 Pump/24hrs',
-            currentStreak: '7D 3H',
-            nextStreak: '7'
-        },
-        {
-            title: 'Jacked Ape#0001',
-            rank: 'Gym Lad',
-            pumpCollected: '27 Pump',
-            pumpRate: '5 Pump/24hrs',
-            currentStreak: '7D 3H',
-            nextStreak: '7'
-        },
-        {
-            title: 'Jacked Ape#0001',
-            rank: 'Gym Lad',
-            pumpCollected: '27 Pump',
-            pumpRate: '5 Pump/24hrs',
-            currentStreak: '7D 3H',
-            nextStreak: '7'
-        },
-        {
-            title: 'Jacked Ape#0001',
-            rank: 'Gym Lad',
-            pumpCollected: '27 Pump',
-            pumpRate: '5 Pump/24hrs',
-            currentStreak: '7D 3H',
-            nextStreak: '7'
-        },
-        {
-            title: 'Jacked Ape#0001',
-            rank: 'Gym Lad',
-            pumpCollected: '27 Pump',
-            pumpRate: '5 Pump/24hrs',
-            currentStreak: '7D 3H',
-            nextStreak: '7'
-        }
-    ]
 
-    const { stakedItems } = React.useContext(MarketContext);
+    const [totalYields, setTotalYields] = React.useState(0);
+
+    const { stakedItems, setStakedItems, totalSum } = React.useContext(MarketContext);
+    const pumpRate = stakedItems.length > 4 ? 10 : 5 * ((stakedItems.length - 1) * 0.25 + 1);
+    const getYields = async (account) => {
+        const web3 = new Web3(window.ethereum);
+        const stakeContractInstance = new web3.eth.Contract(StakeABI.abi, StakeABI.address);
+        const total = await stakeContractInstance.methods.getYields(account).call();
+        setTotalYields(total);
+    }
+    React.useEffect(() => {
+        if (currentAccount) {
+            const getStakedItems = async () => {
+                const web3 = new Web3(window.ethereum);
+                const stakeContractInstance = new web3.eth.Contract(StakeABI.abi, StakeABI.address);
+                const items = await stakeContractInstance.methods.getStakedTokenIds(currentAccount).call();
+                setStakedItems(items);
+            }
+            getStakedItems();
+        }
+    }, [currentAccount])
+    React.useEffect(() => {
+        console.log("currentAccount is ", currentAccount);
+        if (currentAccount) getYields(currentAccount)
+    }, [currentAccount])
 
     return (
         <Wrapper>
@@ -134,9 +70,9 @@ const Stake = ({ tokenIds, currentAccount }) => {
                             <div className="total-content-tag">Workout Streak:</div>
                             <div className="total-content">17 Days</div>
                             <div className="total-content-tag">pumpCollected:</div>
-                            <div className="total-content">17 $Pump</div>
+                            <div className="total-content">{totalSum}</div>
                             <div className="total-content-tag">pumpRate:</div>
-                            <div className="total-content">1 $Pump / Day</div>
+                            <div className="total-content">{pumpRate}$ / Day</div>
                         </div>
                     </div>
 
@@ -159,7 +95,7 @@ const Stake = ({ tokenIds, currentAccount }) => {
                             {
                                 stakedItems.length > 0 ? stakedItems.map((item, index) => {
                                     return (
-                                        <CardComp content={item} key={index}></CardComp>
+                                        <CardComp content={item} account={currentAccount} key={index}></CardComp>
                                     )
                                 })
                                     : <div className='no-stakedItem'>Nothing is staked</div>
@@ -306,7 +242,7 @@ const Wrapper = styled.div`
     };
 
     .total-content{
-        font-size: 53px;
+        font-size: 43px;
         letter-spacing: 1px;
         color: #ffffff;
         font-weight: bold;
@@ -367,7 +303,7 @@ const Wrapper = styled.div`
 
     @media (max-width: 1440px) {
         .total-content {
-            font-size: 45px;
+            font-size: 35px;
         }
         .total-content-tag{
             font-size: 28px;
