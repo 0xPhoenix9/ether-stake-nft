@@ -200,7 +200,7 @@ export default function CardComp({ content, account }) {
 
                 </div>
                 <RankBar>
-                    <FilledBar value={30}></FilledBar>
+                    <FilledBar value={((currentTime - startTime) / 3600 / 24) / 17 * 100}></FilledBar>
                 </RankBar>
                 <FlexRow>
                     {
