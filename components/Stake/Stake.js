@@ -18,7 +18,7 @@ const Stake = ({ tokenIds, currentAccount }) => {
     const [totalYields, setTotalYields] = React.useState(0);
 
     const { stakedItems, setStakedItems, totalSum } = React.useContext(MarketContext);
-    const pumpRate = stakedItems.length > 4 ? 10 : 5 * ((stakedItems.length - 1) * 0.25 + 1);
+    const pumpRate = stakedItems.length > 0 ? (stakedItems.length > 4 ? 10 : 5 * ((stakedItems.length - 1) * 0.25 + 1)) : 0;
     const getYields = async (account) => {
         const web3 = new Web3(window.ethereum);
         const stakeContractInstance = new web3.eth.Contract(StakeABI.abi, StakeABI.address);
